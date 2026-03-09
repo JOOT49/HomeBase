@@ -2,11 +2,17 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
-const { kv } = require('@vercel/kv');
+const { Redis } = require('@upstash/redis');
 const { put } = require('@vercel/blob');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Upstash Redis client (env vars set in Vercel dashboard)
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN,
+});
 
 // Multer — memory storage only, no disk writes
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
@@ -17,10 +23,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // ── KV HELPERS ────────────────────────────────────────────────────────────
 const readData = async (key, def = null) => {
-  try { const val = await kv.get(key); return val ?? def; }
+  try { const val = await redis.get(key); return val ?? def; }
   catch { return def; }
 };
-const writeData = async (key, value) => { await kv.set(key, value); };
+const writeData = async (key, value) => { await redis.set(key, value); };
 
 // ── ROOMMATES ─────────────────────────────────────────────────────────────
 app.get('/api/roommates', async (req, res) => res.json(await readData('roommates', [])));
