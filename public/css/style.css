@@ -265,14 +265,22 @@ body {
 /* ── PAGES ────────────────────────────────────────────────────────────── */
 #main-content {
   margin-top: var(--nav-h);
-  min-height: calc(100vh - var(--nav-h));
-  padding: 32px 28px;
-  max-width: 1200px;
+  height: calc(100vh - var(--nav-h));
+  padding: 24px 28px;
+  max-width: 1400px;
   margin-left: auto; margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.page { display: none; animation: fadeIn 0.3s ease; }
-.page.active { display: block; }
+.page { display: none; animation: fadeIn 0.3s ease; flex: 1; min-height: 0; }
+.page.active { display: flex; flex-direction: column; }
+
+/* Non-home pages can scroll freely */
+#page-cooking, #page-reviews, #page-cleaning, #page-settings {
+  overflow-y: auto;
+}
 
 .page-header {
   display: flex; align-items: center; justify-content: space-between;
@@ -286,17 +294,21 @@ body {
 .header-actions { display: flex; gap: 8px; }
 
 /* ── HOME PAGE ────────────────────────────────────────────────────────── */
+#page-home {
+  gap: 16px;
+}
+
 .home-hero {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 24px;
-  margin-bottom: 28px;
   background: linear-gradient(135deg, var(--bg2) 0%, #151825 100%);
   border: 1px solid var(--border2);
-  border-radius: 24px;
-  padding: 36px 40px;
+  border-radius: 20px;
+  padding: 24px 32px;
   position: relative;
   overflow: hidden;
+  flex-shrink: 0;
 }
 .home-hero::before {
   content: '';
@@ -308,7 +320,7 @@ body {
 
 .home-time {
   font-family: var(--font-display);
-  font-size: 5rem;
+  font-size: 3.8rem;
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.03em;
@@ -318,18 +330,18 @@ body {
   background-clip: text;
 }
 .home-date {
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: var(--text2);
-  margin-top: 8px;
+  margin-top: 6px;
   font-weight: 300;
 }
 .home-apartment {
   font-family: var(--font-display);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: var(--accent);
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  margin-top: 12px;
+  margin-top: 8px;
 }
 
 .home-weather {
@@ -337,25 +349,30 @@ body {
   align-items: flex-end; justify-content: center;
   text-align: right;
 }
-.weather-temp { font-family: var(--font-display); font-size: 3.5rem; font-weight: 800; line-height: 1; }
-.weather-desc { font-size: 0.95rem; color: var(--text2); margin-top: 4px; }
-.weather-icon { font-size: 2.5rem; }
+.weather-temp { font-family: var(--font-display); font-size: 2.8rem; font-weight: 800; line-height: 1; }
+.weather-desc { font-size: 0.9rem; color: var(--text2); margin-top: 4px; }
+.weather-icon { font-size: 2rem; }
 .weather-loading { color: var(--text3); font-size: 0.9rem; }
 
 .home-grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 20px;
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
 }
 
 .home-card {
   background: var(--bg2);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 24px;
+  padding: 20px 24px;
   transition: var(--transition);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
-.home-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+.home-card:hover { border-color: var(--border2); }
 
 .card-label {
   font-family: var(--font-display);
@@ -798,7 +815,9 @@ select option { background: var(--bg2); }
 
 /* ── RESPONSIVE ───────────────────────────────────────────────────────── */
 @media (max-width: 900px) {
-  .home-grid { grid-template-columns: 1fr; }
+  .home-grid { grid-template-columns: 1fr; overflow-y: auto; }
+  #main-content { overflow-y: auto; height: auto; min-height: calc(100vh - var(--nav-h)); }
+  #page-home { overflow-y: auto; }
   .cooking-calendar { grid-template-columns: repeat(4, 1fr); }
   .reviews-layout { grid-template-columns: 1fr; }
 }
@@ -806,8 +825,8 @@ select option { background: var(--bg2); }
   #topnav { padding: 0 12px; gap: 8px; }
   .nav-brand span { display: none; }
   .nav-tab { padding: 6px 10px; font-size: 0.75rem; }
-  #main-content { padding: 20px 16px; }
-  .home-hero { grid-template-columns: 1fr; }
-  .home-time { font-size: 3.5rem; }
+  #main-content { padding: 16px 12px; }
+  .home-hero { grid-template-columns: 1fr; padding: 18px 20px; }
+  .home-time { font-size: 2.8rem; }
   .cooking-calendar { grid-template-columns: repeat(3, 1fr); }
 }
