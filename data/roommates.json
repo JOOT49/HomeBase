@@ -1,0 +1,31 @@
+[
+  {
+    "id": "43bbd3bc-cf7a-49fa-97a0-091bfe18c47e",
+    "name": "Josh",
+    "photo": null,
+    "likes": [],
+    "dislikes": [],
+    "isAdmin": true
+  },
+  {
+    "id": "c8031e79-b34b-416d-a235-af1e31e209dd",
+    "name": "Matthew",
+    "photo": null,
+    "likes": [],
+    "dislikes": []
+  },
+  {
+    "id": "af743c27-8f5d-4d79-afd7-b64392131c9c",
+    "name": "Justin",
+    "photo": null,
+    "likes": [],
+    "dislikes": []
+  },
+  {
+    "id": "8b3cb5b8-0a40-43cd-b3fe-af69555207f3",
+    "name": "Spencer",
+    "photo": null,
+    "likes": [],
+    "dislikes": []
+  }
+]

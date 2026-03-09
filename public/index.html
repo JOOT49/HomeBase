@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HomeBase — Room Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- USER PICKER OVERLAY -->
+  <div id="user-picker-overlay" class="hidden">
+    <div class="user-picker-card">
+      <div class="setup-logo">🏠</div>
+      <h1>Who's <span>here?</span></h1>
+      <p>Choose your profile to get started</p>
+      <div id="user-picker-grid"></div>
+      <button class="btn-ghost master-btn" id="master-login-btn">🔐 Master Access</button>
+    </div>
+  </div>
+
+  <!-- MASTER PIN MODAL -->
+  <div class="modal hidden" id="master-pin-modal">
+    <div class="modal-card">
+      <div class="modal-title">🔐 Master Access</div>
+      <p style="color:var(--text2);font-size:0.9rem">Enter the master PIN to unlock admin controls</p>
+      <input type="password" id="master-pin-input" placeholder="Enter PIN" maxlength="8" />
+      <p id="master-pin-error" style="color:var(--red);font-size:0.8rem;display:none">Incorrect PIN</p>
+      <div class="modal-actions">
+        <button class="btn-ghost" id="cancel-master-pin">Cancel</button>
+        <button class="btn-primary" id="confirm-master-pin">Enter →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETUP OVERLAY -->
+  <div id="setup-overlay" class="hidden">
+    <div class="setup-card">
+      <div class="setup-logo">🏠</div>
+      <h1>Welcome to <span>HomeBase</span></h1>
+      <p>Let's get your space set up. Enter the names of everyone in your room.</p>
+      <div id="name-inputs">
+        <div class="name-row"><input type="text" placeholder="Roommate 1" class="roommate-name-input" /><button class="btn-remove-name hidden">✕</button></div>
+        <div class="name-row"><input type="text" placeholder="Roommate 2" class="roommate-name-input" /><button class="btn-remove-name hidden">✕</button></div>
+      </div>
+      <button id="add-name-btn" class="btn-ghost">+ Add another roommate</button>
+      <button id="setup-submit-btn" class="btn-primary">Create Our Space →</button>
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="app" class="hidden">
+    <!-- TOP NAV -->
+    <nav id="topnav">
+      <div class="nav-brand">🏠 <span>HomeBase</span></div>
+      <div class="nav-tabs">
+        <button class="nav-tab active" data-tab="home">Home</button>
+        <button class="nav-tab" data-tab="cooking">Cooking</button>
+        <button class="nav-tab" data-tab="reviews">Reviews</button>
+        <button class="nav-tab" data-tab="cleaning">Cleaning</button>
+        <button class="nav-tab" data-tab="settings">Settings</button>
+      </div>
+      <div class="nav-right">
+        <div id="current-user-badge" class="current-user-badge"></div>
+        <div class="nav-clock" id="nav-clock"></div>
+      </div>
+    </nav>
+
+    <!-- MASTER BANNER -->
+    <div id="master-banner" class="master-banner hidden">
+      🔐 Master Mode — Full admin access enabled
+      <button class="btn-ghost sm" id="exit-master-btn" style="margin-left:auto">Exit Master Mode</button>
+    </div>
+
+    <!-- PAGES -->
+    <main id="main-content">
+      <!-- HOME -->
+      <section class="page active" id="page-home">
+        <div class="home-hero">
+          <div class="home-left">
+            <div class="home-time" id="home-time"></div>
+            <div class="home-date" id="home-date"></div>
+            <div class="home-apartment" id="home-apartment-name"></div>
+          </div>
+          <div class="home-weather" id="home-weather">
+            <div class="weather-loading">Loading weather…</div>
+          </div>
+        </div>
+        <div class="home-grid">
+          <div class="home-card dinner-card">
+            <div class="card-label">Tonight's Dinner</div>
+            <div id="home-dinner-content">
+              <div class="no-data">No cook scheduled yet</div>
+            </div>
+          </div>
+          <div class="home-card ratings-card">
+            <div class="card-label">Chef Ratings</div>
+            <div id="home-ratings"></div>
+          </div>
+          <div class="home-card events-card">
+            <div class="card-label">Upcoming Events</div>
+            <div id="home-events">
+              <div class="no-data">No calendar imported yet</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- COOKING -->
+      <section class="page" id="page-cooking">
+        <div class="page-header">
+          <h2>Cooking Schedule</h2>
+          <button class="btn-primary" id="generate-cooking-btn">Generate This Week</button>
+        </div>
+
+        <!-- Week selector + calendar -->
+        <div class="week-nav">
+          <button class="btn-ghost" id="cooking-prev-week">‹</button>
+          <span id="cooking-week-label"></span>
+          <button class="btn-ghost" id="cooking-next-week">›</button>
+        </div>
+        <div class="cooking-calendar" id="cooking-calendar"></div>
+
+        <!-- Likes/Dislikes -->
+        <div class="section-divider">Dietary Notes</div>
+        <div class="dietary-grid" id="dietary-grid"></div>
+
+        <!-- Generate modal -->
+        <div class="modal hidden" id="generate-cooking-modal">
+          <div class="modal-card">
+            <div class="modal-title">Generate Week Schedule</div>
+            <p>Select which days people will be cooking:</p>
+            <div class="day-checkboxes">
+              <label><input type="checkbox" value="Sun"> Sun</label>
+              <label><input type="checkbox" value="Mon" checked> Mon</label>
+              <label><input type="checkbox" value="Tue" checked> Tue</label>
+              <label><input type="checkbox" value="Wed" checked> Wed</label>
+              <label><input type="checkbox" value="Thu" checked> Thu</label>
+              <label><input type="checkbox" value="Fri" checked> Fri</label>
+              <label><input type="checkbox" value="Sat"> Sat</label>
+            </div>
+            <div class="modal-actions">
+              <button class="btn-ghost" id="cancel-generate-cooking">Cancel</button>
+              <button class="btn-primary" id="confirm-generate-cooking">Generate →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recipe modal -->
+        <div class="modal hidden" id="recipe-modal">
+          <div class="modal-card">
+            <div class="modal-title">Add Tonight's Recipe</div>
+            <input type="text" id="recipe-name-input" placeholder="Recipe name" />
+            <input type="url" id="recipe-link-input" placeholder="Link (optional)" />
+            <div class="modal-actions">
+              <button class="btn-ghost" id="cancel-recipe">Cancel</button>
+              <button class="btn-primary" id="save-recipe">Save Recipe →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Override modal -->
+        <div class="modal hidden" id="override-modal">
+          <div class="modal-card">
+            <div class="modal-title">Override Cook</div>
+            <p id="override-day-label"></p>
+            <select id="override-select"></select>
+            <div class="modal-actions">
+              <button class="btn-ghost" id="cancel-override">Cancel</button>
+              <button class="btn-primary" id="confirm-override">Save Override →</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- REVIEWS -->
+      <section class="page" id="page-reviews">
+        <div class="page-header">
+          <h2>Food Reviews</h2>
+          <button class="btn-primary" id="add-review-btn">+ Review Today's Meal</button>
+        </div>
+        <div class="reviews-layout">
+          <div class="leaderboard" id="reviews-leaderboard"></div>
+          <div class="reviews-feed" id="reviews-feed"></div>
+        </div>
+        <!-- Review modal -->
+        <div class="modal hidden" id="review-modal">
+          <div class="modal-card">
+            <div class="modal-title">Review Today's Meal</div>
+            <div class="form-row">
+              <label>You are:</label>
+              <select id="reviewer-select"></select>
+            </div>
+            <div class="form-row">
+              <label>Cook today:</label>
+              <select id="cook-select"></select>
+            </div>
+            <div class="form-row">
+              <label>Meal name:</label>
+              <input type="text" id="review-meal-input" placeholder="What was served?" />
+            </div>
+            <div class="form-row">
+              <label>Rating:</label>
+              <div class="star-rating" id="star-rating">
+                <span data-v="1">★</span><span data-v="2">★</span><span data-v="3">★</span><span data-v="4">★</span><span data-v="5">★</span>
+              </div>
+            </div>
+            <div class="form-row">
+              <label>Review (optional):</label>
+              <textarea id="review-comment" placeholder="How was it?"></textarea>
+            </div>
+            <div class="modal-actions">
+              <button class="btn-ghost" id="cancel-review">Cancel</button>
+              <button class="btn-primary" id="submit-review">Submit Review →</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CLEANING -->
+      <section class="page" id="page-cleaning">
+        <div class="page-header">
+          <h2>Cleaning Schedule</h2>
+          <div class="header-actions">
+            <button class="btn-ghost" id="add-task-btn">+ Add Task</button>
+            <button class="btn-primary" id="generate-cleaning-btn">Generate This Week</button>
+          </div>
+        </div>
+        <div class="week-nav">
+          <button class="btn-ghost" id="cleaning-prev-week">‹</button>
+          <span id="cleaning-week-label"></span>
+          <button class="btn-ghost" id="cleaning-next-week">›</button>
+        </div>
+        <div class="cleaning-board" id="cleaning-board"></div>
+        <div class="modal hidden" id="add-task-modal">
+          <div class="modal-card">
+            <div class="modal-title">Add Cleaning Task</div>
+            <input type="text" id="new-task-input" placeholder="e.g. Vacuum living room" />
+            <div class="modal-actions">
+              <button class="btn-ghost" id="cancel-add-task">Cancel</button>
+              <button class="btn-primary" id="confirm-add-task">Add Task →</button>
+            </div>
+          </div>
+        </div>
+        <div class="modal hidden" id="clean-override-modal">
+          <div class="modal-card">
+            <div class="modal-title">Reassign Task</div>
+            <p id="clean-override-task-label"></p>
+            <select id="clean-override-select"></select>
+            <div class="modal-actions">
+              <button class="btn-ghost" id="cancel-clean-override">Cancel</button>
+              <button class="btn-primary" id="confirm-clean-override">Reassign →</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section class="page" id="page-settings">
+        <div class="page-header"><h2>Settings</h2></div>
+        <div class="settings-layout">
+          <div class="settings-section">
+            <div class="settings-title">Apartment</div>
+            <div class="form-row">
+              <label>Apartment name</label>
+              <input type="text" id="setting-apt-name" placeholder="Our Place" />
+            </div>
+            <div class="form-row">
+              <label>Weather location</label>
+              <input type="text" id="setting-weather-loc" placeholder="e.g. New York, NY" />
+              <button class="btn-ghost sm" id="detect-location-btn">Detect</button>
+            </div>
+            <button class="btn-primary" id="save-general-settings">Save Settings</button>
+          </div>
+          <div class="settings-section">
+            <div class="settings-title">Roommates</div>
+            <div id="settings-roommates-list"></div>
+            <button class="btn-ghost" id="add-roommate-btn">+ Add Roommate</button>
+          </div>
+          <div class="settings-section">
+            <div class="settings-title">Master Access</div>
+            <p style="color:var(--text2);font-size:0.88rem">Set a PIN for master admin access, or mark a specific roommate as an Admin — they'll skip the PIN prompt entirely. Default PIN is <strong>1234</strong>.</p>
+            <div class="form-row">
+              <label>Current PIN</label>
+              <div class="pin-display" id="pin-display">••••</div>
+            </div>
+            <div class="form-row">
+              <label>New PIN</label>
+              <input type="password" id="new-pin-input" placeholder="4–8 digits" maxlength="8" />
+            </div>
+            <button class="btn-primary" id="save-pin-btn">Update PIN</button>
+          </div>
+          <div class="settings-section">
+            <div class="settings-title">Calendar</div>
+            <p style="color:var(--text2);font-size:0.88rem">Paste a link to a .ics calendar (e.g. your college's public calendar URL). It will be fetched live each time.</p>
+            <div class="form-row">
+              <label>Calendar URL</label>
+              <input type="url" id="ics-url-input" placeholder="https://…/calendar.ics" />
+            </div>
+            <button class="btn-primary" id="save-ics-url-btn">Save Calendar URL</button>
+            <div id="ics-status"></div>
+          </div>
+        </div>
+        <!-- Add roommate modal -->
+        <div class="modal hidden" id="add-roommate-modal">
+          <div class="modal-card">
+            <div class="modal-title">Add Roommate</div>
+            <input type="text" id="new-roommate-name" placeholder="Name" />
+            <div class="modal-actions">
+              <button class="btn-ghost" id="cancel-add-roommate">Cancel</button>
+              <button class="btn-primary" id="confirm-add-roommate">Add →</button>
+            </div>
+          </div>
+        </div>
+        <!-- Edit roommate modal -->
+        <div class="modal hidden" id="edit-roommate-modal">
+          <div class="modal-card">
+            <div class="modal-title">Edit Roommate</div>
+            <input type="hidden" id="edit-roommate-id" />
+            <div class="photo-upload-area" id="edit-photo-area">
+              <img id="edit-photo-preview" src="" alt="" style="display:none">
+              <span id="edit-photo-placeholder">📷 Upload Photo</span>
+              <input type="file" accept="image/*" id="edit-photo-input" style="display:none">
+            </div>
+            <input type="text" id="edit-roommate-name-input" placeholder="Name" />
+            <div class="settings-title sm">Likes</div>
+            <div id="edit-likes-list"></div>
+            <button class="btn-ghost sm" id="add-like-btn">+ Add item</button>
+            <div class="settings-title sm">Dislikes / Allergies</div>
+            <div id="edit-dislikes-list"></div>
+            <button class="btn-ghost sm" id="add-dislike-btn">+ Add item</button>
+            <div class="modal-actions">
+              <button class="btn-ghost" id="cancel-edit-roommate">Cancel</button>
+              <button class="btn-primary" id="confirm-edit-roommate">Save →</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
