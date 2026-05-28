@@ -248,6 +248,16 @@ app.get('/api/weather', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── KEEPALIVE ─────────────────────────────────────────────────────────────
+app.get('/api/keepalive', async (req, res) => {
+  try {
+    await redis.ping();
+    res.json({ ok: true, ts: new Date().toISOString() });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ── SETUP CHECK ───────────────────────────────────────────────────────────
 app.get('/api/setup-status', async (req, res) => {
   const roommates = await readData('roommates', []);
