@@ -127,18 +127,21 @@ const showUserPicker = () => {
     </button>`;
   }).join('');
 
-  grid.querySelectorAll('.user-pick-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const r = state.roommates.find(rm => rm.id === btn.dataset.id);
-      // If this roommate is an admin, log them in as master directly — no PIN needed
-      if (r.isAdmin) {
-        setCurrentUser(r, true);
-      } else {
-        setCurrentUser(r, false);
-      }
-      overlay.classList.add('hidden');
-    });
+grid.querySelectorAll('.user-pick-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const r = state.roommates.find(rm => rm.id === btn.dataset.id);
+    // If already logged in as someone, confirm the switch
+    if (state.currentUser && state.currentUser.id !== r.id) {
+      if (!confirm(`Switch to ${r.name}?`)) return;
+    }
+    if (r.isAdmin) {
+      setCurrentUser(r, true);
+    } else {
+      setCurrentUser(r, false);
+    }
+    overlay.classList.add('hidden');
   });
+});
 };
 
 const setCurrentUser = (user, master) => {
@@ -179,11 +182,9 @@ const updateNavBadge = () => {
   badge.className = `current-user-badge${master && !isNamedAdmin ? ' master-mode' : ''}`;
   badge.innerHTML = `<div class="badge-avatar" ${avatarStyle}>${avatarInner}</div><span>${name}</span>${isNamedAdmin ? '<span style="color:var(--orange);font-size:0.8rem" title="Admin">👑</span>' : ''}<span style="color:var(--text3);font-size:0.7rem">▼</span>`;
   badge.onclick = () => {
-    if (confirm(`Switch user? You are currently "${name}"`)) {
-      deleteCookie('hb_user');
-      setCurrentUser(null, false);
-      showUserPicker();
-    }
+    deleteCookie('hb_user');
+    setCurrentUser(null, false);
+    showUserPicker();
   };
 };
 
