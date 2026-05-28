@@ -144,8 +144,8 @@ const showUserPicker = () => {
 const setCurrentUser = (user, master) => {
   state.currentUser = user;
   state.isMaster = master;
-  // Persist to cookie
-  if (master) {
+  const isNamedAdmin = master && user?.id !== 'master';
+  if (master && !isNamedAdmin) {
     setCookie('hb_user', 'master');
   } else if (user) {
     setCookie('hb_user', user.id);
@@ -154,7 +154,6 @@ const setCurrentUser = (user, master) => {
   }
   updateNavBadge();
   updateMasterBanner();
-  const isNamedAdmin = master && user?.id !== 'master';
   document.getElementById('main-content').style.marginTop = (master && !isNamedAdmin) ? 'calc(var(--nav-h) + 33px)' : 'var(--nav-h)';
 };
 
